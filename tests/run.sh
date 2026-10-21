@@ -91,9 +91,10 @@ setup_ubuntu_apache_modphp() {
 }
 
 setup_rocky_httpd_fpm() {
-  # the image already ships curl-minimal, which provides the curl command
-  dnf install -y -q php-fpm httpd findutils procps-ng >/dev/null
-  command -v curl >/dev/null || dnf install -y -q curl-minimal >/dev/null
+  # The image ships curl-minimal. --allowerasing lets dnf swap it for curl if a
+  # dependency asks for the full package (throwaway container, so this is safe).
+  dnf install -y -q --allowerasing php-fpm httpd findutils procps-ng >/dev/null
+  command -v curl >/dev/null || dnf install -y -q --allowerasing curl-minimal >/dev/null
   POOL=/etc/php-fpm.d/www.conf
   echo "ServerName localhost" > /etc/httpd/conf.d/servername.conf
   # the stock pool grants the socket to apache and nginx; only apache exists in this container
