@@ -93,7 +93,7 @@ setup_ubuntu_apache_modphp() {
 setup_rocky_httpd_fpm() {
   # The image ships curl-minimal. --allowerasing lets dnf swap it for curl if a
   # dependency asks for the full package (throwaway container, so this is safe).
-  dnf install -y -q --allowerasing php-fpm httpd findutils procps-ng >/dev/null
+  dnf install -y -q --allowerasing php-fpm httpd findutils procps-ng diffutils >/dev/null
   command -v curl >/dev/null || dnf install -y -q --allowerasing curl-minimal >/dev/null
   POOL=/etc/php-fpm.d/www.conf
   echo "ServerName localhost" > /etc/httpd/conf.d/servername.conf
@@ -142,6 +142,9 @@ if [[ "${SKIP_SETUP:-0}" != "1" ]]; then
     *) echo "Unknown target: $TARGET"; exit 2 ;;
   esac
 fi
+for t in curl sha256sum cmp diff find; do
+  if ! command -v "$t" >/dev/null 2>&1; then echo "Test harness needs '$t', which this image lacks"; exit 1; fi
+done
 sleep 2
 BEFORE_LIVE=$(live)
 echo "  live before: $BEFORE_LIVE"
