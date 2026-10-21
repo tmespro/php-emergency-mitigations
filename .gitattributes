@@ -1,0 +1,4 @@
+# Scripts must keep LF line endings or bash fails on the target server
+* text=auto eol=lf
+*.sh text eol=lf
+META text eol=lf

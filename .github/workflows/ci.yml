@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: ShellCheck
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint every shell script
+        run: |
+          shellcheck --version
+          find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 shellcheck -S style
+
+  e2e:
+    name: E2E ${{ matrix.target }}
+    needs: lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: debian-nginx-fpm
+            image: debian:12
+          - target: ubuntu-apache-modphp
+            image: ubuntu:24.04
+          - target: rocky-httpd-fpm
+            image: rockylinux:9
+          - target: official-fpm-nginx
+            image: php:8.4-fpm-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dry run, apply, live check, idempotency, byte-for-byte revert
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" -w /repo "${{ matrix.image }}" \
+            bash tests/run.sh "${{ matrix.target }}"

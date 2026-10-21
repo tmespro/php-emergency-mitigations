@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem in these scripts
+    url: https://github.com/tmespro/php-emergency-mitigations/security/advisories/new
+    about: Private report, for anything that could weaken a server or hide an unsafe setting.
+  - name: Report a vulnerability in PHP itself
+    url: https://github.com/php/php-src/security
+    about: PHP vulnerabilities go to the PHP security team, not to this project.

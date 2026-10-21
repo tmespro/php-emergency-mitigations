@@ -1,0 +1,50 @@
+name: Bug or unsupported layout
+description: A script misdetected your setup, failed, or reported a wrong result.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. If the problem could weaken a server or hide an unsafe setting, please use **Security > Report a vulnerability** instead of a public issue.
+  - type: input
+    id: advisory
+    attributes:
+      label: Advisory
+      placeholder: 2026-10-cve-2026-109618
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Distribution and version
+      placeholder: Ubuntu 24.04, AlmaLinux 9.6, php:8.4-fpm image...
+    validations:
+      required: true
+  - type: input
+    id: php
+    attributes:
+      label: How PHP is installed
+      placeholder: distribution packages, Remi SCL php84, ondrej PPA, cPanel EA-PHP, source build...
+    validations:
+      required: true
+  - type: input
+    id: web
+    attributes:
+      label: Web server and SAPI
+      placeholder: nginx + PHP-FPM, Apache + mod_php, LiteSpeed...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Dry-run output
+      description: "Output of `sudo bash mitigate.sh <advisory-id>` (and `--apply` if relevant). Remove anything sensitive."
+      render: text
+    validations:
+      required: true

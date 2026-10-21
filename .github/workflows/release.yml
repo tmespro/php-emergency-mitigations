@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint before publishing
+        run: find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 shellcheck -S style
+      - name: Build release assets and checksums
+        run: |
+          mkdir dist
+          cp mitigate.sh dist/mitigate.sh
+          for d in advisories/*/; do
+            id=$(basename "$d")
+            cp "$d/mitigate.sh" "dist/$id-mitigate.sh"
+          done
+          git archive --format=tar.gz --prefix="php-emergency-mitigations-${GITHUB_REF_NAME}/" \
+            -o "dist/php-emergency-mitigations-${GITHUB_REF_NAME}.tar.gz" HEAD
+          (cd dist && sha256sum -- * > SHA256SUMS && cat SHA256SUMS)
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Interim mitigations, not fixes: update PHP. Verify downloads with \`sha256sum -c SHA256SUMS\`. See CHANGELOG.md for details."
